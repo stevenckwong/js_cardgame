@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
+    crossorigin="anonymous">
+  <title>Card Game</title>
+</head>
+
+<body>
+
+  <div class="container">
+    <span class="card-title">Dealer's Cards</span>
+    <div class="row" id="dealer-row">
+      <div class="col s4" id="dealer-col-1">
+        <div class="card" id="dealer-card-1">
+          <div class="card-content">-</div>
+        </div>
+      </div>
+      <div class="col s4" id="dealer-col-2">
+          <div class="card" id="dealer-card-2">
+              <div class="card-content">-</div>
+          </div>
+      </div>
+      <div class="col s4" id="dealer-col-3">
+          <div class="card" id="dealer-card-3">
+              <div class="card-content">-</div>
+          </div>
+      </div>
+    </div>
+    <hr>
+    <div class="row" id="player-row">
+      <div class="col s4" id="player-col-1">
+        <div class="card" id="player-card-1">
+            <div class="card-content">-</div>
+          </div>
+        </div>
+      <div class="col s4" id="player-col-2">
+        <div class="card" id="player-card-2">
+          <div class="card-content">-</div>
+        </div>
+      </div>
+      <div class="col s4" id="player-col-3">
+          <div class="card" id="player-card-3">
+              <div class="card-content">-</div>
+            </div>
+          </div>
+     </div>
+     <span class="card-title">Player's Cards</span>
+     <hr>
+     <div class="row" id="control-panel">
+       <a href="#" class="btn black" id="drawCardBtn">Draw Card</a>
+       <a href="#" class="btn green" id="winnerPanel">         </a>
+     </div>
+
+     <div class="card-action">
+        <h5 id="game-history-title">Game History</h5>
+        <ul class="collection">
+          <li class="collection-item">
+            List Item
+            <a href="#" class="delete-item secondary-content">
+              <i class="fa fa-remove"></i>
+            </a>
+          </li>
+        </ul>
+        <a class="btn red" href="#" id="clearHistoryBtn">Clear History</a>
+      </div>
+
+
+
+
+
+
+
+     </div>
+  </div>
+
+
+
+  <script src="https://code.jquery.com/jquery-3.2.1.js" integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>
