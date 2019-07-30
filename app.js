@@ -3,8 +3,21 @@ let cardDeck = initCardDeck()
 let drawnCards = [];
 startGame();
 displayGameHistory();
-// console.log(getCardHeightAndWidth());
+// const containerPanel = document.querySelector('.container');
+window.addEventListener('resize', handleResize);
+// window.onresize = handleResize();
 
+function handleResize(e) {
+  const cardImages = Array.from(document.querySelectorAll('.card-image'));
+  // console.log(cardImages);
+  const cardDimensions = getCardHeightAndWidth();
+
+  cardImages.forEach(function(card,idx,arr) {
+    card.setAttribute('width',cardDimensions[1])
+    card.setAttribute('height',cardDimensions[0]);
+  })
+
+}
 // function to initialise the card deck
 function initCardDeck() {
   const aDeck = []
@@ -118,7 +131,7 @@ function drawCard(){
 function startGame(e) {
   const cardDimensions = getCardHeightAndWidth();
   
-  const cardBackHTML = `<img src="cards/00-back.png" width="${cardDimensions[1]}" height="${cardDimensions[0]}"/>`;
+  const cardBackHTML = `<img class="card-image" src="cards/00-back.png" width="${cardDimensions[1]}" height="${cardDimensions[0]}"/>`;
 
   // re initialise the deck
   drawnCards = [];
@@ -218,12 +231,12 @@ function drawCardClick(e) {
   
   // -1 because array index starts with 0 and currentCard starts with 1;
   // displayCards[currentCard-1].innerText = dealerCard.value;
-  displayCards[currentCard-1].innerHTML = `<img src="cards/${dealerCard.name}.png" width="${cardDimensions[1]}px" height="${cardDimensions[0]}px"/>`;
+  displayCards[currentCard-1].innerHTML = `<img class="card-image" src="cards/${dealerCard.name}.png" width="${cardDimensions[1]}px" height="${cardDimensions[0]}px"/>`;
   displayCards[currentCard-1].setAttribute('cardValue', dealerCard.value);
 
   // +3 because the player card is on indexes 3,4 and 5;
   // displayCards[currentCard-1+3].innerText = playerCard.value;
-  displayCards[currentCard-1+3].innerHTML = `<img src=cards/${playerCard.name}.png width="${cardDimensions[1]}px" height="${cardDimensions[0]}px" />`;
+  displayCards[currentCard-1+3].innerHTML = `<img class="card-image" src=cards/${playerCard.name}.png width="${cardDimensions[1]}px" height="${cardDimensions[0]}px" />`;
   displayCards[currentCard-1+3].setAttribute('cardValue',playerCard.value);
 
   // if this is the 3rd card drawn, get the winner, and change option to clear deck and start new game
