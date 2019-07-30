@@ -1,10 +1,47 @@
 var currentCard = 0;
-const drawCardBtn = document.getElementById('drawCardBtn');
-const clearHistoryBtn = document.getElementById('clearHistoryBtn');
-document.getElementById('winnerPanel').style.display = 'none';
-drawCardBtn.addEventListener('click',drawCardClick)
-clearHistoryBtn.addEventListener('click',clearHistoryClick)
+let cardDeck = initCardDeck()
+let drawnCards = [];
+startGame();
 displayGameHistory();
+// console.log(getCardHeightAndWidth());
+
+// function to initialise the card deck
+function initCardDeck() {
+  const aDeck = []
+  let cardType;
+
+  for (let x=0; x<4; x++) {
+    switch (x) {
+      case 0: {cardType = 'Hearts';break;};
+      case 1: {cardType = 'Diamonds';break;};
+      case 2: {cardType = 'Clubs';break;};
+      case 3: {cardType = 'Spades';break;};
+    }
+
+    for (let i=1; i<14; i++) {
+      let cardName;
+      if (i < 10) {
+        cardName = '0'+i+'-'+cardType;
+      } else {
+        cardName = i+'-'+cardType;
+      }
+      let cardVal;
+      if (i > 10) {
+        cardVal = 10;
+      } else {
+        cardVal = i;
+      }
+      let card = {
+        'name': cardName,
+        'value': cardVal,
+      }
+      aDeck.push(card);
+    }
+  }
+
+  return aDeck;
+
+}
 
 // function clear the history of games from storage
 function clearHistoryClick(e) {
@@ -17,6 +54,8 @@ function clearHistoryClick(e) {
     // are removed from the collection
     gameHistoryCollection.removeChild(gameHistoryCollection.children[0]);
   }  
+  // Hide winning panel
+  document.getElementById('winnerPanel').style.display = 'none';
 }
 
 // function display game history
@@ -57,22 +96,45 @@ function addEntryToGameHistoryDisplay(game) {
 
 // randomly generate 2 cards and return them in an array
 function drawCard(){
-  let cards = [ Math.floor((Math.random()*10)+1), Math.floor(((Math.random()*10)+1)) ];
+
+  let noOfCardsDrawn = 0;
+  let cards = [];
+  
+  while (noOfCardsDrawn < 2) {
+    let randomCardIndex = Math.floor((Math.random()*52)); // returns a value between 0 and 51
+    // if the random card index has not been drawn before, draw it, then add the index to the 
+    // list of drawn cards, and draw another. Stop drawing once we have drawn 2 cards
+    if (drawnCards.indexOf(randomCardIndex) === -1) {
+      cards.push(cardDeck[randomCardIndex]);
+      drawnCards.push(randomCardIndex);
+      noOfCardsDrawn += 1;
+    } 
+
+  }
+  console.log(drawnCards);
   return cards;
 }
 
-function restartGame(e) {
+function startGame(e) {
+  const cardDimensions = getCardHeightAndWidth();
+  
+  const cardBackHTML = `<img src="cards/00-back.png" width="${cardDimensions[1]}" height="${cardDimensions[0]}"/>`;
+
+  // re initialise the deck
+  drawnCards = [];
   currentCard = 0;
   const displayCards = document.querySelectorAll('.card-content'); 
 
   for (let i = 0; i < 6; i++) {
-    displayCards[i].innerText = '-';  
+    displayCards[i].innerHTML = cardBackHTML;  
   }
   
   // Change button functionality to draw new cards.
   document.getElementById('drawCardBtn').innerText = 'Draw Card'
-  document.getElementById('drawCardBtn').removeEventListener('click',restartGame);
+  document.getElementById('drawCardBtn').removeEventListener('click',startGame);
   document.getElementById('drawCardBtn').addEventListener('click',drawCardClick);
+  document.getElementById('clearHistoryBtn').addEventListener('click',clearHistoryClick);
+
   // Hide winning panel
   document.getElementById('winnerPanel').style.display = 'none';
   
@@ -93,8 +155,11 @@ function getWinner() {
   let dealerTotal = 0;
   const dealerCards = []
   for (let i = 0; i < 3; i++) {
-    dealerTotal = dealerTotal + parseInt(displayCards[i].innerText);  
-    dealerCards.push(displayCards[i].innerText);
+    // dealerTotal = dealerTotal + parseInt(displayCards[i].innerText);  
+    // dealerCards.push(displayCards[i].innerText);
+    let cardValue = displayCards[i].getAttribute('cardValue');
+    dealerTotal = dealerTotal + parseInt(cardValue);  
+    dealerCards.push(cardValue);
     // console.log(displayCards[i].innerText);
   }
   // console.log(dealerTotal)
@@ -103,8 +168,11 @@ function getWinner() {
   let playerTotal = 0;
   const playerCards = [];
   for (let i = 3; i < 6; i++) {
-    playerTotal = playerTotal + parseInt(displayCards[i].innerText);  
-    playerCards.push(displayCards[i].innerText);
+    let pCardValue = displayCards[i].getAttribute('cardValue');
+    // playerTotal = playerTotal + parseInt(displayCards[i].innerText);  
+    // playerCards.push(displayCards[i].innerText);
+    playerTotal = playerTotal + parseInt(pCardValue);  
+    playerCards.push(pCardValue);
   }
 
   let winningMessage = '';
@@ -146,11 +214,17 @@ function drawCardClick(e) {
 
   // this should return the 6 displayed cards in an array. first 3 would be the dealer cards. next 3 would be the player cards
   const displayCards = document.querySelectorAll('.card-content'); 
-
+  const cardDimensions = getCardHeightAndWidth();
+  
   // -1 because array index starts with 0 and currentCard starts with 1;
-  displayCards[currentCard-1].innerText = dealerCard;
+  // displayCards[currentCard-1].innerText = dealerCard.value;
+  displayCards[currentCard-1].innerHTML = `<img src="cards/${dealerCard.name}.png" width="${cardDimensions[1]}px" height="${cardDimensions[0]}px"/>`;
+  displayCards[currentCard-1].setAttribute('cardValue', dealerCard.value);
+
   // +3 because the player card is on indexes 3,4 and 5;
-  displayCards[currentCard-1+3].innerText = playerCard;
+  // displayCards[currentCard-1+3].innerText = playerCard.value;
+  displayCards[currentCard-1+3].innerHTML = `<img src=cards/${playerCard.name}.png width="${cardDimensions[1]}px" height="${cardDimensions[0]}px" />`;
+  displayCards[currentCard-1+3].setAttribute('cardValue',playerCard.value);
 
   // if this is the 3rd card drawn, get the winner, and change option to clear deck and start new game
   if (currentCard === 3) {
@@ -158,7 +232,22 @@ function drawCardClick(e) {
     // Change button functionality to clear the deck.
     document.getElementById('drawCardBtn').innerText = 'Restart Game'
     document.getElementById('drawCardBtn').removeEventListener('click',drawCardClick);
-    document.getElementById('drawCardBtn').addEventListener('click',restartGame);
+    document.getElementById('drawCardBtn').addEventListener('click',startGame);
   }
   
 }
+
+// function to get the width of the cards
+// returns an array with Height and Width respectively. 
+function getCardHeightAndWidth() {
+  const card = document.querySelector('.card');
+  // card dimensions is 0.66:1.00 width:height ratio
+  const cardHeight = card.clientHeight;
+  const cardWidth = card.clientWidth;
+
+  const imgWidth = cardWidth - 50 // allow for 25px margin on left and right.
+  const imgHeight = imgWidth/0.65 * 1;
+
+  return [imgHeight, imgWidth];
+}
+
