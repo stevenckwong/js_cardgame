@@ -1,6 +1,10 @@
 var currentCard = 0;
 let cardDeck = initCardDeck()
 let drawnCards = [];
+let dealerCards = [];
+let playerCards = [];
+let currentDealerTotal = 0;
+let currentPlayerTotal = 0;
 startGame();
 displayGameHistory();
 // const containerPanel = document.querySelector('.container');
@@ -131,15 +135,24 @@ function drawCard(){
 function startGame(e) {
   const cardDimensions = getCardHeightAndWidth();
   
-  const cardBackHTML = `<img class="card-image" src="cards/00-back.png" width="${cardDimensions[1]}" height="${cardDimensions[0]}"/>`;
+  // const cardBackHTML = `<img class="card-image" src="cards/00-back.png" width="${cardDimensions[1]}" height="${cardDimensions[0]}"/>`;
+  const cardBackImageSrc = 'cards/00-back.png';
 
   // re initialise the deck
   drawnCards = [];
+  dealerCards = [];
+  playerCards = [];
   currentCard = 0;
-  const displayCards = document.querySelectorAll('.card-content'); 
+  const displayCards = document.querySelectorAll('.card-image'); 
+  const dealerTotalCard = document.querySelector('.dealer-total');
+  const playerTotalCard = document.querySelector('.player-total');
+  dealerTotalCard.textContent = 0;
+  playerTotalCard.textContent = 0;
 
   for (let i = 0; i < 6; i++) {
-    displayCards[i].innerHTML = cardBackHTML;  
+    displayCards[i].setAttribute('src',cardBackImageSrc);
+    displayCards[i].setAttribute('width',cardDimensions[1]);  
+    displayCards[i].setAttribute('height',cardDimensions[0]);  
   }
   
   // Change button functionality to draw new cards.
@@ -153,6 +166,31 @@ function startGame(e) {
   
 }
 
+// get the total of the current cards for dealer and player. 
+// returns an array with first element being dealer total and second element player total
+function getDealerPlayerTotals()  {
+  // Total up dealer cards - the first 3 of the array
+  let dealerTotal = 0;
+  for (let i = 0; i < dealerCards.length; i++) {
+    // dealerTotal = dealerTotal + parseInt(displayCards[i].innerText);  
+    // dealerCards.push(displayCards[i].innerText);
+    let cardValue = dealerCards[i];
+    dealerTotal = dealerTotal + cardValue;  
+    // console.log(displayCards[i].innerText);
+  }
+  // console.log(dealerTotal)
+  
+  // Total up player cards
+  let playerTotal = 0;
+  for (let i = 0; i < playerCards.length; i++) {
+    let pCardValue = playerCards[i]
+    playerTotal = playerTotal + pCardValue;  
+  }
+
+  return [dealerTotal,playerTotal];
+}
+
+
 function getWinner() {
   let games = localStorage.getItem('games');
   let gamesArr;
@@ -162,48 +200,28 @@ function getWinner() {
     gamesArr = JSON.parse(games);
   }
 
-  const displayCards = document.querySelectorAll('.card-content'); 
-
-  // Total up dealer cards - the first 3 of the array
-  let dealerTotal = 0;
-  const dealerCards = []
-  for (let i = 0; i < 3; i++) {
-    // dealerTotal = dealerTotal + parseInt(displayCards[i].innerText);  
-    // dealerCards.push(displayCards[i].innerText);
-    let cardValue = displayCards[i].getAttribute('cardValue');
-    dealerTotal = dealerTotal + parseInt(cardValue);  
-    dealerCards.push(cardValue);
-    // console.log(displayCards[i].innerText);
-  }
-  // console.log(dealerTotal)
-  
-  // Total up player cards
-  let playerTotal = 0;
-  const playerCards = [];
-  for (let i = 3; i < 6; i++) {
-    let pCardValue = displayCards[i].getAttribute('cardValue');
-    // playerTotal = playerTotal + parseInt(displayCards[i].innerText);  
-    // playerCards.push(displayCards[i].innerText);
-    playerTotal = playerTotal + parseInt(pCardValue);  
-    playerCards.push(pCardValue);
-  }
-
+  const totals = getDealerPlayerTotals();
+  const dealerTotal = totals[0];
+  const playerTotal = totals[1];
   let winningMessage = '';
   let winner;
+  const winnerPanel = document.getElementById('winnerPanel');
+  
   if (dealerTotal > playerTotal) {
     winningMessage = `Dealer Wins! : ${dealerTotal} vs ${playerTotal}`;
     winner = 'Dealer'
   } else if (playerTotal > dealerTotal) {
     winningMessage = `Player Wins! : ${playerTotal} vs ${dealerTotal}`;
-    winner = 'Player'
-  } else {
+    winner = 'Player';
+} else {
     winningMessage = `Its a Draw! : ${playerTotal} vs ${dealerTotal}`;
     winner = 'Draw'
   }
-
-  const winnerPanel = document.getElementById('winnerPanel');
+  
   winnerPanel.innerText = winningMessage;
   winnerPanel.style.display = 'inline-block'
+
+  
 
   let currentGame = {
     'dealercards': dealerCards,
@@ -225,6 +243,11 @@ function drawCardClick(e) {
   const dealerCard = cards[0];
   const playerCard = cards[1];
 
+  dealerCards.push(dealerCard.value);
+  playerCards.push(playerCard.value);
+
+  let totals = getDealerPlayerTotals();
+
   // this should return the 6 displayed cards in an array. first 3 would be the dealer cards. next 3 would be the player cards
   const displayCards = document.querySelectorAll('.card-content'); 
   const cardDimensions = getCardHeightAndWidth();
@@ -238,6 +261,11 @@ function drawCardClick(e) {
   // displayCards[currentCard-1+3].innerText = playerCard.value;
   displayCards[currentCard-1+3].innerHTML = `<img class="card-image" src=cards/${playerCard.name}.png width="${cardDimensions[1]}px" height="${cardDimensions[0]}px" />`;
   displayCards[currentCard-1+3].setAttribute('cardValue',playerCard.value);
+
+  const dealerTotalCard = document.querySelector('.dealer-total');
+  const playerTotalCard = document.querySelector('.player-total');
+  dealerTotalCard.textContent = totals[0];
+  playerTotalCard.textContent = totals[1];
 
   // if this is the 3rd card drawn, get the winner, and change option to clear deck and start new game
   if (currentCard === 3) {
@@ -258,7 +286,7 @@ function getCardHeightAndWidth() {
   const cardHeight = card.clientHeight;
   const cardWidth = card.clientWidth;
 
-  const imgWidth = cardWidth - 50 // allow for 25px margin on left and right.
+  const imgWidth = cardWidth- 50 // allow for 25px margin on left and right.
   const imgHeight = imgWidth/0.65 * 1;
 
   return [imgHeight, imgWidth];
